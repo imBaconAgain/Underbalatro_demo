@@ -821,7 +821,7 @@ SMODS.Joker{
 			"-5 mult", -- 9 {C:mult}-5{C:inactive} mult
 			"I\'ve heard that song before...", -- 10 {C:ub_rainbow}I\'ve heard that song before...
 			"+$1 per scoring card", -- 11 {C:money}+$1{C:inactive} per scoring card
-			"Obtain a Pie Consumeable", -- 12
+			"Obtain a Negative Butterscotch Pie Consumeable", -- 12
 			"+29 hand size", -- 13 {C:attention}+29{C:inactive} hand size
 			"+2 discards this round", -- 14 {C:red}+2{C:inactive} discards this round
 			"+1 Hand this round", -- 15 {C:blue}+1{C:inactive} Hand this round
@@ -886,6 +886,8 @@ SMODS.Joker{
 				SMODS.add_card({key = "j_ub_flowey", edition = "e_negative"})
 			elseif abil == 22 then
 				SMODS.add_card({key="trousers", edition = "e_negative"})
+            elseif abil == 12 then
+                SMODS.add_card({key="c_ub_pie", edition = "e_negative"})
 			elseif abil == 21 then
 				return {level_up = true, level_up_hand = "Two_pair"}
 			end
@@ -1131,26 +1133,26 @@ SMODS.Joker{
 			local chance = math.random(1,2)
 			if chance == 1 then
 				card.ability.extra.chips1 = 100
-				card.ability.extra.mult1 = nil
+				card.ability.extra.mult1 = 0
 			else
 				card.ability.extra.mult1 = 10
-				card.ability.extra.chips1 = nil
+				card.ability.extra.chips1 = 0
 			end
 			chance = math.random(1,2)
 			if chance == 1 then
 				card.ability.extra.chips2 = 100
-				card.ability.extra.mult2 = nil
+				card.ability.extra.mult2 = 0
 			else
 				card.ability.extra.mult2 = 10
-				card.ability.extra.chips2 = nil
+				card.ability.extra.chips2 = 0
 			end
 			chance = math.random(1,2)
 			if chance == 1 then
 				card.ability.extra.chips3 = 100
-				card.ability.extra.mult3 = nil
+				card.ability.extra.mult3 = 0
 			else
 				card.ability.extra.mult3 = 10
-				card.ability.extra.chips3 = nil
+				card.ability.extra.chips3 = 0
 			end
 		end
 	end	
@@ -1170,7 +1172,7 @@ SMODS.Joker{
 	loc_txt = {
 		name = 'Susie',
 		text = {
-			'Gain {C:mult}+5{} mult for every',
+			'Gain {C:mult}+3{} mult for every',
 			'discarded {C:attention}face card',
 			'{C:inactive}(Currently {C:mult}+#1#{C:inactive} mult)'
 		}
@@ -1192,7 +1194,7 @@ SMODS.Joker{
 	end,
 	calculate = function(self,card,context)
 		if context.discard and not context.blueprint and not context.other_card.debuff and context.other_card:is_face() then
-			card.ability.extra.mult = card.ability.extra.mult + 5
+			card.ability.extra.mult = card.ability.extra.mult + 3
 			return {
 					message = localize('k_upgrade_ex'),
 					colour = G.C.RED
@@ -1296,7 +1298,7 @@ SMODS.Joker{
 		text = {
 			{
 				'{C:dark_edition}+1{} Joker slot.',
-				'{X:mult,C:white}X1.5{} Mult'
+				'{X:mult,C:white}X1.3{} Mult'
 			},
 			{
 				'Seals after {C:attention}7{} hands',

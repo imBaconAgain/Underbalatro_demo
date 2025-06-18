@@ -278,3 +278,163 @@ SMODS.Consumable{
         G.GAME.chips = G.GAME.chips + perc
 	end,
 }
+
+-- Instant Noodles
+
+SMODS.Consumable{
+	key = "noodles",
+	set = "items",
+	loc_txt = {
+		name = 'Instant Noodles',
+		text = {
+			'Instantly obtain {C:attention}50%{}',
+            'of the Blind requirement',
+            'during Boss blind, and',
+            '{C:attention}10%{} otherwise'
+		}
+	},
+	atlas = 'ph',
+	cost = 15,
+	pos = {x = 0, y = 0},
+	config = {extra = {
+		
+	}
+	},
+	can_use = function(self,card)
+		return G.GAME.blind.in_blind
+	end,
+	loc_vars = function(self,info_queue,card)
+
+	end,
+	calculate = function(self, card, context)
+		
+	end,
+	use = function(self,card,area,copier)
+        local perc = 0
+		if G.GAME.blind.boss then
+            perc = G.GAME.blind.chips * 0.5
+            G.GAME.chips = G.GAME.chips + perc
+        else
+            perc = G.GAME.blind.chips * 0.1
+            G.GAME.chips = G.GAME.chips + perc
+        end
+	end,
+}
+
+-- Legendary Hero
+
+SMODS.Consumable{
+	key = "leghero",
+	set = "items",
+	loc_txt = {
+		name = 'Legendary Hero',
+		text = {
+			'Gain X2 mult the next',
+            'hand played'
+		}
+	},
+	atlas = 'ph',
+	cost = 15,
+	pos = {x = 0, y = 0},
+	config = {extra = {
+		
+	}
+	},
+	can_use = function(self,card)
+		return G.GAME.blind.in_blind
+	end,
+	loc_vars = function(self,info_queue,card)
+
+	end,
+	calculate = function(self, card, context)
+		
+	end,
+	use = function(self,card,area,copier)
+        local perc = 0
+		if G.GAME.blind.boss then
+            perc = G.GAME.blind.chips * 0.5
+            G.GAME.chips = G.GAME.chips + perc
+        else
+            perc = G.GAME.blind.chips * 0.1
+            G.GAME.chips = G.GAME.chips + perc
+        end
+	end,
+}
+
+-- Glowshard
+
+SMODS.Consumable{
+	key = "glowshard",
+	set = "items",
+	loc_txt = {
+		name = 'Glowshard',
+		text = {
+			''
+		}
+	},
+	atlas = 'ph',
+	cost = 15,
+	pos = {x = 0, y = 0},
+	config = {extra = {
+		
+	}
+	},
+	can_use = function(self,card)
+		return G.GAME.blind.in_blind
+	end,
+	loc_vars = function(self,info_queue,card)
+        info_queue[#info_queue+1] = {key='unfinished', set='Other'}
+	end,
+	calculate = function(self, card, context)
+		
+	end,
+	use = function(self,card,area,copier)
+        local perc = 0
+		if G.GAME.blind.boss then
+            perc = G.GAME.blind.chips * 0.5
+            G.GAME.chips = G.GAME.chips + perc
+        else
+            perc = G.GAME.blind.chips * 0.1
+            G.GAME.chips = G.GAME.chips + perc
+        end
+	end,
+}
+
+-- Thorn Ring
+
+SMODS.Consumable{
+	key = "thornring",
+	set = "items",
+	loc_txt = {
+		name = 'Thorn Ring',
+		text = {
+			'You\'re stronger.'
+		}
+	},
+	atlas = 'ph',
+	cost = 15,
+	pos = {x = 0, y = 0},
+	config = {extra = {
+		
+	}
+	},
+	can_use = function(self,card)
+		return G.GAME.blind.in_blind
+	end,
+	loc_vars = function(self,info_queue,card)
+        info_queue[#info_queue+1] = {key='unfinished', set='Other'}
+	end,
+	calculate = function(self, card, context)
+		
+	end,
+	use = function(self,card,area,copier)
+        local perc = 0
+		if G.GAME.blind.boss then
+            perc = G.GAME.blind.chips * 0.5
+            G.GAME.chips = G.GAME.chips + perc
+        else
+            perc = G.GAME.blind.chips * 0.1
+            G.GAME.chips = G.GAME.chips + perc
+        end
+	end,
+}
