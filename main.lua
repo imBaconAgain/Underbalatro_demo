@@ -9,7 +9,7 @@ local allFolders = {
     "code",
 }
 local allFiles = {
-	["code"] = {"darkjokers", 'bigfunctions','jokers','seals','enhancements','consumeables'},
+	["code"] = {"darkjokers", 'jokers','bigfunctions','seals','enhancements','consumeables','misc'},
 }
 
 for i = 1,#allFolders do
@@ -236,6 +236,30 @@ end
 	'hotland',
 	'core'
 }]]
+UNDERBALATRO.tarots = {
+	'fool',
+	'magician',
+	'high_priestess',
+	'empress',
+	'emperor',
+	'hierophant',
+	'lovers',
+	'chariot',
+	'justice',
+	'hermit',
+	'wheel_of_fortune',
+	'strength',
+	'hanged_man',
+	'death',
+	'temperance',
+	'devil',
+	'tower',
+	'star',
+	'moon',
+	'sun',
+	'judgement',
+	'world'
+}
 
 --Hooking!
 local oldcardremove = Card.remove
@@ -259,6 +283,41 @@ function Card:can_sell_card(context)
 	local g = oldcansellcard(self,context)
 	if (G.play and #G.play.cards > 0) or (G.CONTROLLER.locked) or (G.GAME.STOP_USE and G.GAME.STOP_USE > 0) then return false end
 	if self.config.center.key == 'j_ub_dfountain' then return false end
+	return g
+end
+
+local use_and_sell_buttonsref = G.UIDEF.use_and_sell_buttons
+function G.UIDEF.use_and_sell_buttons(card)
+	local retval = use_and_sell_buttonsref(card)
+	if card.area and card.area.config.type == 'joker' and card.ability.set == 'Joker' and card.ability.deal then
+		local fuse = 
+		{n=G.UIT.C, config={align = "cr"}, nodes={
+		  
+		  {n=G.UIT.C, config={ref_table = card, align = "cr",maxw = 1.25, padding = 0.1, r=0.08, minw = 1.25, hover = true, shadow = true, colour = G.C.GOLD, one_press = true, button = 'sell_card', func = 'can_fuse_card'}, nodes={
+			{n=G.UIT.B, config = {w=0.1,h=0.6}},
+			{n=G.UIT.C, config={align = "tm"}, nodes={
+				{n=G.UIT.R, config={align = "cm", maxw = 1.25}, nodes={
+					{n=G.UIT.T, config={text = 'DEAL',colour = G.C.UI.TEXT_LIGHT, scale = 0.4, shadow = true}}
+				}},
+				{n=G.UIT.R, config={align = "cm"}, nodes={
+					{n=G.UIT.T, config={text = localize('$'),colour = G.C.WHITE, scale = 0.4, shadow = true}},
+					{n=G.UIT.T, config={ref_table = card, ref_value = 'fusion_cost',colour = G.C.WHITE, scale = 0.55, shadow = true}}
+				}}
+			}}
+		  }}
+		}}
+		retval.nodes[1].nodes[2].nodes = retval.nodes[1].nodes[2].nodes or {}
+		table.insert(retval.nodes[1].nodes[2].nodes, fuse)
+		return retval
+	end
+
+	return retval
+end
+
+local oldsetcost = Card.set_cost
+function Card:set_cost()
+	local g = oldsetcost(self)
+	if self.config.center.key == 'j_ub_spamton' then self.sell_cost = self.sell_cost - 1 end
 	return g
 end
 

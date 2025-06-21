@@ -294,7 +294,7 @@ SMODS.Consumable{
 		}
 	},
 	atlas = 'ph',
-	cost = 15,
+	cost = 6,
 	pos = {x = 0, y = 0},
 	config = {extra = {
 		
@@ -321,27 +321,26 @@ SMODS.Consumable{
 	end,
 }
 
--- Legendary Hero
+-- Cell Phone
 
 SMODS.Consumable{
-	key = "leghero",
+	key = "cell",
 	set = "items",
 	loc_txt = {
-		name = 'Legendary Hero',
+		name = 'Cell Phone',
 		text = {
-			'Gain X2 mult the next',
-            'hand played'
+			'Call in a random {C:attention}Tarot{} Card'
 		}
 	},
 	atlas = 'ph',
-	cost = 15,
+	cost = 4,
 	pos = {x = 0, y = 0},
 	config = {extra = {
 		
 	}
 	},
 	can_use = function(self,card)
-		return G.GAME.blind.in_blind
+		return true
 	end,
 	loc_vars = function(self,info_queue,card)
 
@@ -350,14 +349,8 @@ SMODS.Consumable{
 		
 	end,
 	use = function(self,card,area,copier)
-        local perc = 0
-		if G.GAME.blind.boss then
-            perc = G.GAME.blind.chips * 0.5
-            G.GAME.chips = G.GAME.chips + perc
-        else
-            perc = G.GAME.blind.chips * 0.1
-            G.GAME.chips = G.GAME.chips + perc
-        end
+        card:start_dissolve()
+        SMODS.add_card{key='c_'..pseudorandom_element(UNDERBALATRO.tarots, pseudoseed('cellphone'))}
 	end,
 }
 
@@ -369,50 +362,50 @@ SMODS.Consumable{
 	loc_txt = {
 		name = 'Glowshard',
 		text = {
-			''
+			'Increases {C:attention}sell value',
+            'by {C:money}$10{} every',
+            '{C:attention}Ante'
 		}
 	},
 	atlas = 'ph',
-	cost = 15,
+	cost = 4,
 	pos = {x = 0, y = 0},
 	config = {extra = {
 		
 	}
 	},
 	can_use = function(self,card)
-		return G.GAME.blind.in_blind
+		return false
 	end,
 	loc_vars = function(self,info_queue,card)
-        info_queue[#info_queue+1] = {key='unfinished', set='Other'}
+
 	end,
 	calculate = function(self, card, context)
-		
-	end,
-	use = function(self,card,area,copier)
-        local perc = 0
-		if G.GAME.blind.boss then
-            perc = G.GAME.blind.chips * 0.5
-            G.GAME.chips = G.GAME.chips + perc
-        else
-            perc = G.GAME.blind.chips * 0.1
-            G.GAME.chips = G.GAME.chips + perc
-        end
+		if context.end_of_round and context.game_over == false and context.main_eval and not context.blueprint and G.GAME.blind.boss then
+			card.ability.extra_value = card.ability.extra_value + 10
+			card:set_cost()
+			return {
+				message = localize('k_val_up'),
+				colour = G.C.MONEY
+			}
+		end
 	end,
 }
 
 -- Thorn Ring
-
+--[[
 SMODS.Consumable{
 	key = "thornring",
 	set = "items",
 	loc_txt = {
 		name = 'Thorn Ring',
 		text = {
-			'You\'re stronger.'
+			'Give a random joker the',
+            '{C:attention}Frozen{} Sticker'
 		}
 	},
 	atlas = 'ph',
-	cost = 15,
+	cost = 1,
 	pos = {x = 0, y = 0},
 	config = {extra = {
 		
@@ -428,13 +421,6 @@ SMODS.Consumable{
 		
 	end,
 	use = function(self,card,area,copier)
-        local perc = 0
-		if G.GAME.blind.boss then
-            perc = G.GAME.blind.chips * 0.5
-            G.GAME.chips = G.GAME.chips + perc
-        else
-            perc = G.GAME.blind.chips * 0.1
-            G.GAME.chips = G.GAME.chips + perc
-        end
+        G.jokers 
 	end,
-}
+}]]

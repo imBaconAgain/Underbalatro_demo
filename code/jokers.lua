@@ -150,7 +150,7 @@ SMODS.Joker{
 	loc_txt = {
 		name = 'Kindness',
 		text = {
-			'{C:green}1 in 3{} chance to give',
+			'{C:green}#1# in 3{} chance to give',
 			'{C:mult}+25{} mult',
 		}
 	},
@@ -163,7 +163,7 @@ SMODS.Joker{
     },
 	blueprint_compat = true,
 	loc_vars = function(self, info_queue, card)
-
+        return {vars = {(G.GAME and G.GAME.probabilities.normal or 1)}}
     end,
 	set_badges = function(self,card,badges)
 
@@ -438,7 +438,7 @@ SMODS.Joker{
 	},
 	atlas = 'flowey',
 	cost = 5,
-	rarity = 3,
+	rarity = 2,
 	pos = {x = 0, y = 0},
 	config = { extra = {
 		Xchips = 1,
@@ -653,9 +653,9 @@ SMODS.Joker{
 		name = 'G..?!',
 		text = {
 			'Whoops! Wrong number...',
-			'{C:green}1 in 3{} chance for {X:mult,C:white}X3',
+			'{C:green}#1# in 3{} chance for {X:mult,C:white}X3',
 			'mult.',
-			'{C:green}1 in 200{} chance for some {C:dark_edition}fun'
+			'{C:green}#1# in 200{} chance for some {C:dark_edition}fun'
 		}
 	},
 	atlas = 'g',
@@ -668,7 +668,7 @@ SMODS.Joker{
     },
 	blueprint_compat = true,
 	loc_vars = function(self, info_queue, card)
-
+        return {vars = {(G.GAME and G.GAME.probabilities.normal or 1)}}
     end,
 	set_badges = function(self,card,badges)
 
@@ -885,11 +885,11 @@ SMODS.Joker{
 			elseif abil == 17 then
 				SMODS.add_card({key = "j_ub_flowey", edition = "e_negative"})
 			elseif abil == 22 then
-				SMODS.add_card({key="trousers", edition = "e_negative"})
+				SMODS.add_card({key="j_trousers", edition = "e_negative"})
             elseif abil == 12 then
                 SMODS.add_card({key="c_ub_pie", edition = "e_negative"})
 			elseif abil == 21 then
-				return {level_up = true, level_up_hand = "Two_pair"}
+				return {level_up = true, level_up_hand = "Two Pair"}
 			end
 		end
 		abil = card.ability.extra.element
@@ -1053,14 +1053,14 @@ SMODS.Joker{
 	loc_txt = {
 		name = 'Delta Rune',
 		text = {
-			'Gains {X:mult,C:white}+6{} Mult for every',
-			'{C:attention}Prophecied{} Joker ever bought',
-			'{C:inactive}(Currently {X:mult,C:white}+#1#{C:inactive} mult)'
+			'{C:mult}+50{} mult',
+            '{C:green}#2# in 10{} to break',
+            '{s:0.7}(Temporary ability)'
 		}
 	},
 	atlas = 'deltarune',
-	cost = 7,
-	rarity = 3,
+	cost = 5,
+	rarity = 2,
 	soul_pos = {x=1, y=0},
 	pos = {x = 0, y = 0},
 	config = { extra = {
@@ -1069,16 +1069,30 @@ SMODS.Joker{
     },
 	blueprint_compat = true,
 	loc_vars = function(self, info_queue, card)
-        info_queue[#info_queue+1] = {key='unfinished', set='Other'}
-		return {vars = {card.ability.extra.Xmult}}
+		return {vars = {card.ability.extra.Xmult,(G.GAME and G.GAME.probabilities.normal or 1)}}
     end,
 	set_badges = function(self,card,badges)
 
 	end,
 	calculate = function(self,card,context)
-		if context.buying_card == "" then
-			
-		end
+		if context.joker_main then
+            return {mult = 50}
+        end
+        if context.main_eval and context.end_of_round then
+            local chance = math.random(1,10)
+            if chance == 1 then
+                card:start_dissolve({ HEX("57ecab") }, nil, 1.6)
+                return {
+                    message = 'Broke!',
+                    colour = G.C.attention
+                }
+            else
+                return {
+                    message = 'Safe!',
+                    colour = G.C.attention
+                }
+            end
+        end
 	end	
 }
 
@@ -1120,7 +1134,7 @@ SMODS.Joker{
 		}}
     end,
 	set_badges = function(self,card,badges)
-
+        badges[#badges+1] = create_badge(localize('k_prophecy'), HEX('8062d9'), G.C.WHITE, 0.8)
 	end,
 	calculate = function(self,card,context)
 		if context.joker_main then
@@ -1190,7 +1204,7 @@ SMODS.Joker{
 		return {vars = {card.ability.extra.mult}}
     end,
 	set_badges = function(self,card,badges)
-
+        badges[#badges+1] = create_badge(localize('k_prophecy'), HEX('8062d9'), G.C.WHITE, 0.8)
 	end,
 	calculate = function(self,card,context)
 		if context.discard and not context.blueprint and not context.other_card.debuff and context.other_card:is_face() then
@@ -1239,7 +1253,7 @@ SMODS.Joker{
 
     end,
 	set_badges = function(self,card,badges)
-
+        badges[#badges+1] = create_badge(localize('k_prophecy'), HEX('8062d9'), G.C.WHITE, 0.8)
 	end,
 	calculate = function(self,card,context)
 		if context.setting_blind and not context.blueprint then
@@ -1280,7 +1294,7 @@ SMODS.Joker{
 		info_queue[#info_queue+1] = G.P_CENTERS['j_ub_dfountain']
     end,
 	set_badges = function(self,card,badges)
-
+        badges[#badges+1] = create_badge(localize('k_prophecy'), HEX('8062d9'), G.C.WHITE, 0.8)
 	end,
 	calculate = function(self,card,context)
 		if context.end_of_round and context.main_eval then
@@ -1322,7 +1336,7 @@ SMODS.Joker{
 		return {vars={card.ability.extra.handss}}
     end,
 	set_badges = function(self,card,badges)
-
+        badges[#badges+1] = create_badge(localize('k_prophecy'), HEX('8062d9'), G.C.WHITE, 0.8)
 	end,
     add_to_deck = function(self, card, from_debuff)
         G.jokers.config.card_limit = G.jokers.config.card_limit + 1
@@ -1361,6 +1375,7 @@ SMODS.Joker{
 	atlas = 'ph2',
 	rarity = 'ub_mystery',
 	pos = {x = 0, y = 0},
+    cost = 5,
 	config = { extra = {
 		
    	},
@@ -1413,11 +1428,12 @@ SMODS.Joker{
 		name = 'Snowdin',
 		text = {
 			'{C:attention}First{} scoring card becomes',
-			'{C:attention}Snowy{} card'
+			'{C:planet}Frozen'
 		}
 	},
 	atlas = 'ph2',
 	rarity = 'ub_mystery',
+    cost = 5,
 	pos = {x = 0, y = 0},
 	config = { extra = {
 		
@@ -1457,6 +1473,7 @@ SMODS.Joker{
 	atlas = 'ph2',
 	rarity = 'ub_mystery',
 	pos = {x = 0, y = 0},
+    cost = 6,
 	config = { extra = {
 		
    	},
@@ -1500,6 +1517,7 @@ SMODS.Joker{
 	atlas = 'ph2',
 	rarity = 'ub_mystery',
 	pos = {x = 0, y = 0},
+    cost = 5,
 	config = { extra = {
 		mult = 0
    	},
@@ -1542,6 +1560,7 @@ SMODS.Joker{
 	atlas = 'ph2',
 	rarity = 'ub_mystery',
 	pos = {x = 0, y = 0},
+    cost = 8,
 	config = { extra = {
 		other_joker = nil
    	},
@@ -1587,6 +1606,7 @@ SMODS.Joker{
 	},
 	atlas = 'ph2',
 	rarity = 'ub_mystery',
+    cost = 7,
 	pos = {x = 0, y = 0},
 	config = { extra = {
 		Xmult = 1
@@ -1626,6 +1646,7 @@ SMODS.Joker{
 	},
 	atlas = 'ph2',
 	rarity = 'ub_mystery',
+    cost = 2,
 	pos = {x = 0, y = 0},
 	config = { extra = {
 		paid = 0
@@ -1654,6 +1675,298 @@ SMODS.Joker{
             else
                 if card.ability.extra.paid >= 15 then
                     SMODS.add_card{key = pseudorandom_element(UNDERBALATRO.consumeables,pseudoseed('temmies'))}
+                end
+            end
+        end
+	end	
+}
+
+-- Noelle
+
+SMODS.Atlas{
+	key = 'noelle',
+	path = 'noelle.png',
+	px = 71,
+	py = 95
+}
+
+SMODS.Joker{
+	key = "noelle",
+	loc_txt = {
+		name = 'Noelle',
+		text = {
+			'{C:mult}+6{} mult for every {C:planet}Frozen',
+            'card currently in the deck',
+            '{C:inactive}(Currently {C:mult}+#1#{C:inactive} mult)'
+		}
+	},
+	atlas = 'noelle',
+	rarity = 1,
+    cost = 6,
+	pos = {x = 0, y = 0},
+	config = { extra = {
+		mult = 0
+   	},
+    },
+	in_pool = function(self,args)
+		for _, playing_card in ipairs(G.playing_cards or {}) do
+            if SMODS.has_enhancement(playing_card, 'm_ub_snowy') then
+                return true
+            end
+        end
+        return false
+	end,
+	blueprint_compat = true,
+	loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue+1] = G.P_CENTERS['m_ub_snowy']
+        local frozens = 0
+        if G.playing_cards then
+            for _, playing_card in ipairs(G.playing_cards) do
+                if SMODS.has_enhancement(playing_card, 'm_ub_snowy') then frozens = frozens + 1 end
+            end
+        end
+		return {vars={frozens*6}}
+    end,
+	set_badges = function(self,card,badges)
+        badges[#badges+1] = create_badge(localize('k_prophecy'), HEX('8062d9'), G.C.WHITE, 0.8)
+	end,
+	calculate = function(self,card,context)
+		if context.joker_main then
+            for _, playing_card in ipairs(G.playing_cards) do
+                if SMODS.has_enhancement(playing_card, 'm_ub_snowy') then 
+                    card.ability.extra.mult = card.ability.extra.mult + 6
+                end
+            end
+            return {
+                mult = card.ability.extra.mult
+            }
+        end
+	end	
+}
+
+-- Madjick
+
+SMODS.Joker{
+	key = "madjick",
+	loc_txt = {
+		name = 'Madjick',
+		text = {
+			'{C:chips}+15{} Chips per {C:}Spectral',
+            'card used this run',
+            '{C:inactive}(Currently {C:chips}+#1#{C:inactive} Chips)'
+		}
+	},
+	atlas = 'ph2',
+	rarity = 1,
+    cost = 6,
+	pos = {x = 0, y = 0},
+	config = { extra = {
+		
+   	},
+    },
+	in_pool = function(self,args)
+		return true
+	end,
+	blueprint_compat = true,
+	loc_vars = function(self, info_queue, card)
+		info_queue[#info_queue+1] = {key='ph', set='Other'}
+		return {vars={15*(G.GAME.consumeable_usage_total and G.GAME.consumeable_usage_total.spectral or 0)}}
+    end,
+	set_badges = function(self,card,badges)
+
+	end,
+	calculate = function(self,card,context)
+		if context.using_consumeable and not context.blueprint and context.consumeable.ability.set == "Spectral" then
+            return {
+                message = localize { type = 'variable', key = 'a_mult', vars = { G.GAME.consumeable_usage_total.tarot } },
+            }
+        end
+        if context.joker_main then
+            return {
+                chips = 15 *
+                    (G.GAME.consumeable_usage_total and G.GAME.consumeable_usage_total.spectral or 0)
+            }
+        end
+	end	
+}
+
+-- Spamton
+
+SMODS.Joker{
+	key = "spamton",
+	loc_txt = {
+		name = '[Spamton]',
+		text = {
+            {
+			    'NOW\'S YOUR CHANCE TO BE A {C:attention}[[BIG SHOT!]]{}.',
+                'DEAL OR NO DEAL. [Hyperlink Blocked].'
+            },
+            {
+                'Sell, paying {C:gold}$#1#{} to increase {X:mult,C:white}XMult{}.',
+                '{C:inactive}(Currently {X:mult,C:white}X#2#{C:inactive} Mult)'
+            }
+		}
+	},
+	atlas = 'ph2',
+	rarity = 2,
+    cost = 8,
+	pos = {x = 0, y = 0},
+	config = { extra = {
+		price = 1,
+        Xmult = 1
+   	},
+    },
+	in_pool = function(self,args)
+		return true
+	end,
+	blueprint_compat = true,
+	loc_vars = function(self, info_queue, card)
+		info_queue[#info_queue+1] = {key='ph', set='Other'}
+        info_queue[#info_queue+1] = {key='unfinished', set='Other'}
+		return {vars={card.ability.extra.price,card.ability.extra.Xmult}}
+    end,
+	set_badges = function(self,card,badges)
+
+	end,
+    add_to_deck = function(self,card, from_debuff)
+        card:set_cost()
+        card:set_cost()
+        card:set_cost()
+        card:set_cost()
+        card:set_cost()
+    end,
+	calculate = function(self,card,context)
+		if context.selling_self and not context.blueprint then
+            card:set_cost()
+            SMODS.add_card({key = 'j_ub_spamton', center = {cost = card.cost - 1}})
+        end
+	end	
+}
+
+-- Tasque Manager
+
+SMODS.Atlas{
+	key = 'tasquemanager',
+	path = 'tasquemanager.png',
+	px = 71,
+	py = 95
+}
+
+SMODS.Joker{
+	key = "tasque_manager",
+	loc_txt = {
+		name = 'Tasque Manager',
+		text = {
+            'Retrigger scoring {C:attention}Aces'
+		}
+	},
+	atlas = 'tasquemanager',
+	rarity = 1,
+    cost = 4,
+	pos = {x = 0, y = 0},
+	config = { extra = {
+
+   	},
+    },
+	in_pool = function(self,args)
+		return true
+	end,
+	blueprint_compat = true,
+	loc_vars = function(self, info_queue, card)
+
+    end,
+	set_badges = function(self,card,badges)
+
+	end,
+	calculate = function(self,card,context)
+		if context.repetition and context.other_card:get_id() == 14 then
+            return {repetitions = 1}
+        end
+	end	
+}
+
+-- Toriel
+
+SMODS.Joker{
+	key = "toriel",
+	loc_txt = {
+		name = 'Toriel',
+		text = {
+            'Create a {C:attention}Butterscotch pie',
+            'when {C:attention}Boss Blind{} is defeated',
+            '{C:inactive}(Must have space)'
+		}
+	},
+	atlas = 'ph2',
+	rarity = 2,
+    cost = 6,
+	pos = {x = 0, y = 0},
+	config = { extra = {
+
+   	},
+    },
+	in_pool = function(self,args)
+		return true
+	end,
+	blueprint_compat = true,
+	loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue+1] = {key='ph', set='Other'}
+        info_queue[#info_queue+1] = G.P_CENTERS['c_ub_pie']
+    end,
+	set_badges = function(self,card,badges)
+
+	end,
+	calculate = function(self,card,context)
+		if context.end_of_round and context.game_over == false and context.main_eval then
+            if G.GAME.blind.boss and #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
+                G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
+                SMODS.add_card{key = 'c_ub_pie'}
+            end
+        end
+	end	
+}
+
+-- Lancer
+
+SMODS.Atlas{
+	key = 'lancer',
+	path = 'lancer.png',
+	px = 71,
+	py = 95
+}
+
+SMODS.Joker{
+	key = "lancer",
+	loc_txt = {
+		name = 'Lancer',
+		text = {
+            'Transform scoring {C:hearts}Hearts{} into',
+            '{C:spades}Spades'
+		}
+	},
+	atlas = 'lancer',
+	rarity = 1,
+    cost = 5,
+	pos = {x = 0, y = 0},
+	config = { extra = {
+
+   	},
+    },
+	in_pool = function(self,args)
+		return true
+	end,
+	blueprint_compat = true,
+	loc_vars = function(self, info_queue, card)
+
+    end,
+	set_badges = function(self,card,badges)
+        badges[#badges+1] = create_badge(localize('k_prophecy'), HEX('8062d9'), G.C.WHITE, 0.8)
+	end,
+	calculate = function(self,card,context)
+		if context.after then
+            for _, i in ipairs(context.scoring_hand) do
+                if i:is_suit('Hearts') then
+                    SMODS.change_base(i, 'Spades')
                 end
             end
         end
