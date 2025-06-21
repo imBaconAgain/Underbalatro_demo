@@ -1944,3 +1944,53 @@ function UNDERBALATRO.get_vanilla_joker_return(key, context, fake_card)
         end
     end
 end
+
+-- Thorn Ring
+
+SMODS.Joker{
+	key = "thornring",
+	loc_txt = {
+		name = 'Thorn Ring',
+		text = {
+            '{C:attention}Joker{} to the right gets',
+            'debuffed.',
+            'Apply a different effect depending',
+            'on what {C:attention}Joker{} was debuffed'
+		}
+	},
+	atlas = 'ph2',
+	rarity = 3,
+    cost = 6,
+	pos = {x = 0, y = 0},
+	config = { extra = {
+		joker_affected = nil
+   	},
+    },
+	in_pool = function(self,args)
+		return true
+	end,
+	blueprint_compat = true,
+	loc_vars = function(self, info_queue, card)
+		info_queue[#info_queue+1] = {key='ph', set='Other'}
+        info_queue[#info_queue+1] = {key='unfinished', set='Other'}
+		return {vars={card.ability.extra.price,card.ability.extra.Xmult}}
+    end,
+	set_badges = function(self,card,badges)
+
+	end,
+	calculate = function(self,card,context)
+        local oj = card.ability.extra.joker_affected
+		for i = 1, #G.jokers.cards do
+            if G.jokers.cards[i] == card then
+                oj = G.jokers.cards[i+1].key
+            end
+        end
+        if context.joker_main then
+            if oj == 'j_joker' then
+                return {chips = 20}
+            elseif oj == 'j_greedy_joker' then
+
+            end
+        end
+	end	
+}

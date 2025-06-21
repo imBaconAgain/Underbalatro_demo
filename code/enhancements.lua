@@ -34,7 +34,7 @@ SMODS.Enhancement{
 	end
 }
 
--- Snowy
+-- Frozen
 
 SMODS.Atlas{
 	key = 'snowy',
@@ -47,11 +47,11 @@ SMODS.Atlas{
 SMODS.Enhancement{
 	key = "snowy",
 	loc_txt = {
-		name = "Snowy",
+		name = "Frozen",
 		text = {
 			'{X:chips,C:white}X1.2{} chips for',
 			'every other scoring',
-			'{C:attention}Snowy{} card'
+			'{C:planet}Frozen{} card'
 		}
 	},
 	config = {extra = {

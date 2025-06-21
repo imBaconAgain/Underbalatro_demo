@@ -7,14 +7,14 @@ return {
 			kris = {
 				{
 					'{C:default}Souless',
-					
+
 				}
 			}
 		}
 	},
 	misc = {
 		dictionary = {
-			k_credit1 = "Art and idea by (@sadcube)",
+			k_prophecy = "Prophecied",
 		}
 	}
 }
