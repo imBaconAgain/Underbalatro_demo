@@ -1963,7 +1963,9 @@ SMODS.Joker{
     cost = 6,
 	pos = {x = 0, y = 0},
 	config = { extra = {
-		joker_affected = nil
+		joker_affected = nil,
+        ceremonial = 0,
+        loyalty = 2
    	},
     },
 	in_pool = function(self,args)
@@ -1973,7 +1975,7 @@ SMODS.Joker{
 	loc_vars = function(self, info_queue, card)
 		info_queue[#info_queue+1] = {key='ph', set='Other'}
         info_queue[#info_queue+1] = {key='unfinished', set='Other'}
-		return {vars={card.ability.extra.price,card.ability.extra.Xmult}}
+		return {vars={}}
     end,
 	set_badges = function(self,card,badges)
 
@@ -1985,12 +1987,233 @@ SMODS.Joker{
                 oj = G.jokers.cards[i+1].key
             end
         end
+        local suited = false
+
+        if context.setting_blind then
+            if oj == 'j_marble' then
+                local stone = SMODS.create_card{set = 'Base', enhancement = 'm_stone', edition = 'e_foil', area = G.discard}
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        stone_card:start_materialize({ G.C.SECONDARY_SET.Enhanced })
+                        G.play:emplace(stone_card)
+                        return true
+                    end
+                }))
+                return {
+                    message = localize('k_plus_stone'),
+                    colour = G.C.SECONDARY_SET.Enhanced,
+                    func = function()
+                        G.E_MANAGER:add_event(Event({
+                            func = function()
+                                G.deck.config.card_limit = G.deck.config.card_limit + 1
+                                return true
+                            end
+                        }))
+                        draw_card(G.play, G.deck, 90, 'up')
+                        SMODS.calculate_context({ playing_card_added = true, cards = { stone_card } })
+                    end
+                }
+            end
+        end
+
+        if context.individual then
+            if oj == 'j_greedy_joker' then
+                if context.other_card:is_suit('Diamonds') then
+                    suited = true
+                end
+            elseif oj == 'j_lusty_joker' then
+                if context.other_card:is_suit('Hearts') then
+                    suited = true
+                end
+            elseif oj == 'j_wrathful_joker' then
+                if context.other_card:is_suit('Spades') then
+                    suited = true
+                end
+            elseif oj == 'j_gluttenous_joker' then
+                if context.other_card:is_suit('Clubs') then
+                    suited = true
+                end
+            elseif oj == 'j_8_ball' then
+                if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
+                    local chance = math.random(G.GAME.probabilities.normal, 8)
+                    if (context.other_card:get_id() == 8) and chance == 1 then
+                        G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
+                        return { extra {
+                            message = localize('k_plus_spectral'),
+                            message_card = card,
+                            func = function()
+                                G.E_MANAGER:add_event(Event({
+                                    func = (function()
+                                        SMODS.add_card {
+                                            set = 'Spectral',
+                                            key_append = 'ub_thornring' -- Optional, useful for manipulating the random seed and checking the source of the creation in `in_pool`.
+                                        }
+                                        G.GAME.consumeable_buffer = 0
+                                        return true
+                                    end)
+                                }))
+                            end
+                        }}
+                    end
+                end
+            elseif oj == 'j_raised_fist' then
+                if context.cardarea == G.hand and not context.end_of_round then
+                    local temp_Mult, temp_ID = 15,15
+                    local raised_card = nil
+                    for i = 1, #G.hand.cards do
+                        if temp_ID <= G.hand.cards[i].base.id and not SMODS.has_no_rank(G.hand.cards[i]) then
+                            temp_Mult = G.hand.cards[i].base.nominal
+                            temp_ID = G.hand.cards[i].base.idol_card
+                            raised_card = G.hand.cards[i]
+                        end
+                    end
+                    if raised_card == context.other_card then
+                        if context.other_card.debuff then
+                            return {
+                                message = localize('k_debuffed'),
+                                colour = G.C.RED
+                            }
+                        else
+                            return {mult = 2*temp_Mult}
+                        end
+                    end
+                end
+            elseif oj == 'j_fibonacci' then
+                if context.other_card:get_id() == 2 or context.other_card:get_id() == 3 or context.other_card:get_id() == 5 or context.other_card:get_id() == 8 or context.other_card:get_id() == 14 then
+                    return {Xmult = 1.2}
+                end
+            end
+        end
+
+        if context.repetition and context.cardarea == G.play then
+            if oj == 'j_mime' then
+                return {repetitions = 1}
+            elseif oj == 'j_dusk' then
+                if G.GAME.current_round.hands_left == 0 then
+                    return {repetitions = 2}
+                end
+            end
+        end
+
         if context.joker_main then
             if oj == 'j_joker' then
                 return {chips = 20}
             elseif oj == 'j_greedy_joker' then
+                if suited == false then
+                    return {mult = 10}
+                end
+            elseif oj == 'j_lusty_joker' then
+                if suited == false then
+                    return {mult = 10}
+                end
+            elseif oj == 'j_wrathful_joker' then
+                if suited == false then
+                    return {mult = 10}
+                end
+            elseif oj == 'j_gluttenous_joker' then
+                if suited == false then
+                    return {mult = 10}
+                end
+            elseif oj == 'j_jolly' then
+                if next(context.poker_hands['Pair']) then
+                    return {chips = 50}
+                end
+            elseif oj == 'j_zany' then
+                if next(context.poker_hands['Three of a Kind']) then
+                    return {chips = 50}
+                end
+            elseif oj == 'j_mad' then
+                if next(context.poker_hands['Two Pair']) then
+                    return {chips = 50}
+                end
+            elseif oj == 'j_crazy' then
+                if next(context.poker_hands['Straight']) then
+                    return {chips = 50}
+                end
+            elseif oj == 'j_droll' then
+                if next(context.poker_hands['Flush']) then
+                    return {chips = 50}
+                end
+            elseif oj == 'j_sly' then
+                if next(context.poker_hands['Pair']) then
+                    return {mult = 10}
+                end
+            elseif oj == 'j_wily' then
+                if next(context.poker_hands['Three of a Kind']) then
+                    return {mult = 10}
+                end
+            elseif oj == 'j_clever' then
+                if next(context.poker_hands['Two Pair']) then
+                    return {mult = 10}
+                end
+            elseif oj == 'j_devious' then
+                if next(context.poker_hands['Straight']) then
+                    return {mult = 10}
+                end
+            elseif oj == 'j_crafty' then
+                if next(context.poker_hands['Flush']) then
+                    return {mult = 10}
+                end
+            elseif oj == 'j_half' then
+                if #context.full_hand >= 3 then
+                    return {mult = 15}
+                end
+            elseif oj == 'j_stencil' then
+                return {Xchips = math.max(1,(G.jokers.config.card_limit - #G.jokers.cards) + #SMODS.find_card('j_stencil',true))}
+            elseif oj == 'j_ceremonial' then
+                local my = nil
+                for i = 1, #G.jokers.cards do
+                    if G.jokers.cards[i] == card then
+                        my = i
+                        break
+                    end
+                end
+                if my and G.jokers.cards[my-1] then
+                    local selected = G.jokers.cards[my-1]
+                    card.ability.extra.ceremonial = card.ability.extra.ceremonial + selected.sell_cost * 2
+                end
+            elseif oj == 'j_banner' then
+                return {mult = G.GAME.current_round.hands_left * 5}
+            elseif oj == 'j_mystic_summit' then
+                if G.GAME.current_round.discards_left == 0 then
+                    return {Xmult = 1.3}
+                end
+            elseif oj == 'j_loyalty_card' then
+                card.ability.extra.loyalty = (2 - 1 - (G.GAME.hands_played - card.ability.hands_played_at_create)) % (2 + 1)
+                if not context.blueprint then
+                    if card.ability.loyalty == 0 then
+                        local eval = function(card) return card.extra.loalty == 0 and not G.RESET_JIGGLES end
+                        juice_card_until(card,eval,true)
+                    end
+                end
+                if card.ability.extra.loyalty == 2 then
+                    return {Xmult = 4}
+                end
+            elseif oj == 'j_misprint' then
+                return {Xmult = math.random(1.0,6.0)}
+            end
+        end
 
+        if context.end_of_round and context.main_eval then
+            if oj == 'j_credit_card' then
+                ease_dollars(5)
+            --[[
+            elseif oj == 'j_chaos' then
+                SMODS.change_free_rerolls(3)
+            end
+            if not oj == 'j_chaos' then
+                SMODS.change_free_rerolls(-3)]]
             end
         end
 	end	
 }
+
+local smods_three_fingers_ref = SMODS.four_fingers
+function SMODS.four_fingers()
+    local c = next(SMODS.find_card('j_ub_thornring'))
+    if c and c.ability.extra.joker_affected == 'j_four_fingers' then
+         return 3
+    end
+    return smods_three_fingers_ref()
+end
+

@@ -573,7 +573,6 @@ SMODS.Joker{
     },
 	blueprint_compat = true,
 	loc_vars = function(self, info_queue, card)
-		info_queue[#info_queue+1] = {key='ph', set='Other'}
 		info_queue[#info_queue+1] = G.P_CENTERS[card.ability.extra.jl]
 		info_queue[#info_queue+1] = G.P_CENTERS[card.ability.extra.jr]
     end,
@@ -590,50 +589,32 @@ SMODS.Joker{
 					end
 				end
 				if other_joker and other_joker ~= self then
-					card.ability.extra.jl = other_joker
+					card.ability.extra.jl = other_joker.config.center.key
 					other_joker:start_dissolve({ HEX("57ecab") }, nil, 1.6)
 				end
-				local other_joker = nil
+				other_joker = nil
 				for i = 1, #G.jokers.cards do
 					if G.jokers.cards[i] == card then
 						other_joker = G.jokers.cards[i+1]
 					end
 				end
 				if other_joker and other_joker ~= self then
-					card.ability.extra.jr = other_joker
+					card.ability.extra.jr = other_joker.config.center.key
 					other_joker:start_dissolve({ HEX("57ecab") }, nil, 1.6)
 				end
 			end
 		end
 		if card.ability.extra.jl ~= '' and card.ability.extra.jr ~= '' then
-			context.blueprint = (context.blueprint and (context.blueprint + 1)) or 1
-			context.blueprint_card = context.blueprint_card or card
-
-			if context.blueprint > #G.jokers.cards + 1 then
-				return
-			end
-
-			local other_joker_ret, trig = card.ability.extra.jl:calculate_joker(context)
-			if other_joker_ret or trig then
-				if not other_joker_ret then
-					other_joker_ret = {}
-				end
-				other_joker_ret.card = context.blueprint_card or card
-				other_joker_ret.colour = G.C.bluepring
-				other_joker_ret.no_callback = true
-				return other_joker_ret
-			end
-
-			local other_joker_ret, trig = card.ability.extra.jr:calculate_joker(context)
-			if other_joker_ret or trig then
-				if not other_joker_ret then
-					other_joker_ret = {}
-				end
-				other_joker_ret.card = context.blueprint_card or card
-				other_joker_ret.colour = G.C.bluepring
-				other_joker_ret.no_callback = true
-				return other_joker_ret
-			end
+			local retfinal = {}
+            local ret1 = UNDERBALATRO.get_joker_return(card.ability.extra.jl,context,card,table.contains(UNDERBALATRO.jokers_key,card.ability.extra.jl))
+            local ret2 = UNDERBALATRO.get_joker_return(card.ability.extra.jr,context,card,table.contains(UNDERBALATRO.jokers_key,card.ability.extra.jr))
+            if ret1 then
+                table.insert(retfinal, ret1)
+            end
+            if ret2 then
+                table.insert(retfinal, ret2)
+            end
+            return SMODS.merge_effects(retfinal)
 		end
 	end	
 }
@@ -1701,7 +1682,7 @@ SMODS.Joker{
 		}
 	},
 	atlas = 'noelle',
-	rarity = 1,
+	rarity = 2,
     cost = 6,
 	pos = {x = 0, y = 0},
 	config = { extra = {
@@ -1732,6 +1713,7 @@ SMODS.Joker{
 	end,
 	calculate = function(self,card,context)
 		if context.joker_main then
+            card.ability.extra.mult = 0
             for _, playing_card in ipairs(G.playing_cards) do
                 if SMODS.has_enhancement(playing_card, 'm_ub_snowy') then 
                     card.ability.extra.mult = card.ability.extra.mult + 6
@@ -1792,6 +1774,13 @@ SMODS.Joker{
 
 -- Spamton
 
+SMODS.Atlas{
+	key = 'spamton',
+	path = 'spamton.png',
+	px = 71,
+	py = 95
+}
+
 SMODS.Joker{
 	key = "spamton",
 	loc_txt = {
@@ -1802,18 +1791,20 @@ SMODS.Joker{
                 'DEAL OR NO DEAL. [Hyperlink Blocked].'
             },
             {
-                'Sell, paying {C:gold}$#1#{} to increase {X:mult,C:white}XMult{}.',
+                'Selling this {C:attention}Joker{} costs {C:gold}$#1#{} and creates',
+                'another {C:attention}Spamton{} with {X:mult,C:white}X#3#{} more mult',
                 '{C:inactive}(Currently {X:mult,C:white}X#2#{C:inactive} Mult)'
             }
 		}
 	},
-	atlas = 'ph2',
+	atlas = 'spamton',
 	rarity = 2,
     cost = 8,
 	pos = {x = 0, y = 0},
 	config = { extra = {
-		price = 1,
-        Xmult = 1
+		price = -1,
+        Xmult = 1,
+        Xmult_inc = 0.1
    	},
     },
 	in_pool = function(self,args)
@@ -1821,24 +1812,25 @@ SMODS.Joker{
 	end,
 	blueprint_compat = true,
 	loc_vars = function(self, info_queue, card)
-		info_queue[#info_queue+1] = {key='ph', set='Other'}
-        info_queue[#info_queue+1] = {key='unfinished', set='Other'}
-		return {vars={card.ability.extra.price,card.ability.extra.Xmult}}
+		return {vars={card.ability.extra.price * -1,card.ability.extra.Xmult, card.ability.extra.Xmult_inc}}
     end,
 	set_badges = function(self,card,badges)
 
 	end,
     add_to_deck = function(self,card, from_debuff)
-        card:set_cost()
-        card:set_cost()
-        card:set_cost()
-        card:set_cost()
-        card:set_cost()
+        
     end,
 	calculate = function(self,card,context)
 		if context.selling_self and not context.blueprint then
-            card:set_cost()
-            SMODS.add_card({key = 'j_ub_spamton', center = {cost = card.cost - 1}})
+            local _card = SMODS.add_card({key = 'j_ub_spamton'})
+            _card.ability.extra.price = card.ability.extra.price * 2
+            _card:set_cost()
+            _card.ability.extra.Xmult = card.ability.extra.Xmult + card.ability.extra.Xmult_inc
+            _card.ability.extra.Xmult_inc = card.ability.extra.Xmult_inc * 2
+            card:start_dissolve()
+        end
+        if context.joker_main then
+            return {Xmult = card.ability.extra.Xmult}
         end
 	end	
 }
@@ -1920,7 +1912,13 @@ SMODS.Joker{
 		if context.end_of_round and context.game_over == false and context.main_eval then
             if G.GAME.blind.boss and #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
                 G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
-                SMODS.add_card{key = 'c_ub_pie'}
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        SMODS.add_card{key = 'c_ub_pie'}
+                        G.GAME.consumeable_buffer = 0
+                        return true
+                    end
+                }))
             end
         end
 	end	
@@ -1973,19 +1971,115 @@ SMODS.Joker{
 	end	
 }
 
+-- Annoying Dog
+
+SMODS.Joker{
+	key = "annoying",
+	loc_txt = {
+		name = 'Annoying Dog',
+		text = {
+            '{C:mult}+3{} Mult for every scored',
+            'card',
+            '{C:inactive}(Currently {C:mult}+#1#{C:inactive} Mult)'
+		}
+	},
+	atlas = 'ph2',
+	rarity = 4,
+    cost = 10,
+	pos = {x = 0, y = 0},
+	config = { extra = {
+        mult = 0
+   	},
+    },
+	in_pool = function(self,args)
+		return true
+	end,
+	blueprint_compat = true,
+	loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue+1] = {key='ph', set='Other'}
+        return {vars = {card.ability.extra.mult}}
+    end,
+	set_badges = function(self,card,badges)
+        
+	end,
+	calculate = function(self,card,context)
+		if context.individual and context.cardarea == G.play then
+            card.ability.extra.mult = card.ability.extra.mult + 3
+            return {
+					message = localize('k_upgrade_ex'),
+					colour = G.C.RED
+				 }
+        end
+        if context.joker_main then
+            return {mult = card.ability.extra.mult}
+        end
+	end	
+}
+
+-- Chara
+
+SMODS.Joker{
+	key = "chara",
+	loc_txt = {
+		name = 'Chara',
+		text = {
+            'Sell this card to',
+            '{C:red,E:2}destroy{} Joker to',
+            'the right.',
+            'When doing so, create',
+            'a {C:dark_edition}Negative{} Joker'
+		}
+	},
+	atlas = 'ph2',
+	rarity = 2,
+    cost = 6,
+	pos = {x = 0, y = 0},
+	config = { extra = {
+        
+   	},
+    },
+	in_pool = function(self,args)
+		return true
+	end,
+	blueprint_compat = true,
+	loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue+1] = {key='ph', set='Other'}
+        info_queue[#info_queue+1] = G.P_CENTERS['e_negative']
+        return {vars = {card.ability.extra.mult}}
+    end,
+	set_badges = function(self,card,badges)
+        
+	end,
+	calculate = function(self,card,context)
+		if context.selling_self then
+            local other_joker = nil
+			for i = 1, #G.jokers.cards do
+				if G.jokers.cards[i] == card then
+					other_joker = G.jokers.cards[i+1]
+				end
+			end
+            if other_joker and other_joker ~= self then
+                other_joker:start_dissolve()
+                SMODS.add_card{key = pseudorandom_element(UNDERBALATRO.jokers, pseudoseed('chara')).key, edition = 'e_negative'}
+            end
+        end
+	end	
+}
+
 -- Roaring Knight
---[[
+
 SMODS.Joker{
 	key = "knight",
 	loc_txt = {
 		name = 'The Roaring Knight',
 		text = {
-			''
+			'Create a {C:dark_edition}Negative{} playing',
+            'card when {C:attention}Blind{} is selected'
 		}
 	},
-	atlas = 'g',
-	cost = 10,
-	rarity = 2,
+	atlas = 'ph2',
+	cost = 7,
+	rarity = 3,
 	pos = {x = 0, y = 0},
 	config = { extra = {
 		
@@ -2000,21 +2094,24 @@ SMODS.Joker{
 	end,
 	calculate = function(self,card,context)
 		if context.setting_blind then
-			local chance = math.random(1,200)
-			if chance == 1 then
-				SMODS.add_card({key = 'j_ub_gaster'})
-				card:start_dissolve({ C.G.DARK_EDITION }, nil, 1.6)
-			end
-		end
-		if context.joker_main then
-			local chance = math.random(1,3)
-			if chance == 1 then
-				return {Xmult = 3}
-			end
-		end
+			G.E_MANAGER:add_event(Event({
+                func = function()
+                    local _suit = pseudorandom_element({ 'S', 'H', 'D', 'C' }, pseudoseed('roaring'))
+                    local _number = pseudorandom_element({'A','K','Q','J','10','9','8','7','6','5','4','3','2'}, pseudoseed('roaring'))
+                    local _card = create_playing_card({ front = G.P_CARDS[_suit .. _number], center = G.P_CENTERS.c_base }, G.deck,
+                        nil, nil, { G.C.SECONDARY_SET.Enhanced })
+                    _card:set_edition('e_negative')
+                    G.GAME.blind:debuff_card(_card)
+                    G.hand:sort()
+                    card:juice_up()
+                    return true
+                end
+            }))
+
+            playing_card_joker_effects({ true })
+        end
 	end	
 }
-]]
 
 --[[if context.ub_destroyedcard == "j_ub_monster" then
 			card.ability.extra.mult = card.ability.extra.mult + 6

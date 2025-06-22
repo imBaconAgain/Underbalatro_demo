@@ -202,6 +202,13 @@ for k,v in pairs(G.P_CENTERS) do
 	end
 end
 
+UNDERBALATRO.jokers_key = {}
+for k, v in pairs(G.P_CENTERS) do
+	if v.set == 'Joker' then
+		table.insert(UNDERBALATRO.jokers_key,v.key)
+	end
+end
+
 UNDERBALATRO.consumeables = {}
 for k,v in pairs(G.P_CENTERS) do
 	if v.set == "Consumable" then
@@ -317,8 +324,14 @@ end
 local oldsetcost = Card.set_cost
 function Card:set_cost()
 	local g = oldsetcost(self)
-	if self.config.center.key == 'j_ub_spamton' then self.sell_cost = self.sell_cost - 1 end
+	if self.config.center.key == 'j_ub_spamton' then self.sell_cost = self.ability.extra.price end
 	return g
+end
+
+local oldcansell = Card.can_sell_card
+function Card:can_sell_card(context)
+	if self.config.center.key == 'j_ub_spamton' then if G.GAME.dollars <= self.sell_cost * -1 then return false end end
+	return oldcansell(self,context)
 end
 
 -- Mystery Raririty

@@ -391,36 +391,3 @@ SMODS.Consumable{
 		end
 	end,
 }
-
--- Thorn Ring
---[[
-SMODS.Consumable{
-	key = "thornring",
-	set = "items",
-	loc_txt = {
-		name = 'Thorn Ring',
-		text = {
-			'Give a random joker the',
-            '{C:attention}Frozen{} Sticker'
-		}
-	},
-	atlas = 'ph',
-	cost = 1,
-	pos = {x = 0, y = 0},
-	config = {extra = {
-		
-	}
-	},
-	can_use = function(self,card)
-		return G.GAME.blind.in_blind
-	end,
-	loc_vars = function(self,info_queue,card)
-        info_queue[#info_queue+1] = {key='unfinished', set='Other'}
-	end,
-	calculate = function(self, card, context)
-		
-	end,
-	use = function(self,card,area,copier)
-        G.jokers 
-	end,
-}]]
