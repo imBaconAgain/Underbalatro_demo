@@ -20,7 +20,7 @@ SMODS.Seal{
 	},
 	atlas = 'echoflower',
 	badge_colour = HEX('00ffc3'),
-	sound = { sound = 'red_seal', per = 1.2, vol = 0.4 },
+	sound = { sound = 'gold_seal', per = 1.2, vol = 0.4 },
 	calculate = function(self,card,context)
 		if context.repetition then
 			return {repetitions = math.random(1,3)}
