@@ -36,14 +36,6 @@ SMODS.Enhancement{
 
 -- Frozen
 
-SMODS.Atlas{
-	key = 'snowy',
-	path = 'snowy.png',
-	px = 88,
-	py = 123
-}
-
-
 SMODS.Enhancement{
 	key = "snowy",
 	loc_txt = {
@@ -58,8 +50,8 @@ SMODS.Enhancement{
 
 	}
 	},
-	display_size = { w = 88.0, h = 123 },
-	atlas = "snowy",
+    pos = {x=4,y=1},
+	atlas = "spritesheet",
 	calculate = function(self,card,context)
 		if context.main_scoring and context.cardarea == G.play then
 			local snowy_xchips = 1

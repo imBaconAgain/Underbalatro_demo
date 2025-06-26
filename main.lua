@@ -5,24 +5,16 @@
 
 UNDERBALATRO = SMODS.current_mod
 
-local allFolders = {
-    "code",
-}
-local allFiles = {
-	["code"] = {"darkjokers", 'jokers','bigfunctions','seals','enhancements','consumeables','misc'},
-}
+assert(SMODS.load_file('./code/backs.lua'))()
+assert(SMODS.load_file('./code/consumeables.lua'))()
+assert(SMODS.load_file('./code/enhancements.lua'))()
+assert(SMODS.load_file('./code/jokers.lua'))()
+assert(SMODS.load_file('./code/misc.lua'))()
+assert(SMODS.load_file('./code/seals.lua'))()
+assert(SMODS.load_file('./code/stickers.lua'))()
+assert(SMODS.load_file('./code/bigfunctions.lua'))()
 
-for i = 1,#allFolders do
-    if allFolders[i] == "none" then
-        for i2 = 1,#allFiles[allFolders[i]] do
-            assert(SMODS.load_file(allFiles[allFolders[i]][i2]..'.lua'))()
-        end
-    else
-        for i2 = 1,#allFiles[allFolders[i]] do
-            assert(SMODS.load_file(allFolders[i].."/"..allFiles[allFolders[i]][i2]..'.lua'))()
-        end
-    end
-end
+assert(SMODS.load_file('./code/compats/Partner.lua'))()
 
 SMODS.current_mod.optional_features = function()
     return {
@@ -43,6 +35,37 @@ SMODS.Atlas{
 	path = 'ph2.png',
 	px = 71,
 	py = 95
+}
+
+SMODS.Atlas{
+	key = 'jatlas',
+	path = 'jokeratlas.png',
+	px = 71,
+	py = 95
+}
+
+SMODS.Atlas{
+	key = 'aatlas',
+	path = 'aatlas.png',
+	px = 71,
+	py = 95,
+	frames = 6
+}
+
+SMODS.Atlas{
+	key = 'spritesheet',
+	path = 'spritesheet.png',
+	px = 71,
+	py = 95,
+}
+
+SMODS.Atlas{
+	key = 'blindub',
+	path = 'blinds.png',
+	px = 34,
+	py = 34,
+	atlas_table = 'ANIMATION_ATLAS',
+	frames = 21,
 }
 
 G.localization.descriptions.Other['ph'] = {
@@ -289,7 +312,7 @@ local oldcansellcard = Card.can_sell_card
 function Card:can_sell_card(context)
 	local g = oldcansellcard(self,context)
 	if (G.play and #G.play.cards > 0) or (G.CONTROLLER.locked) or (G.GAME.STOP_USE and G.GAME.STOP_USE > 0) then return false end
-	if self.config.center.key == 'j_ub_dfountain' then return false end
+	if self.config.center.key == 'j_ub_dfountain' or self.config.center.key == 'j_ub_pipis' then return false end
 	return g
 end
 
@@ -324,15 +347,42 @@ end
 local oldsetcost = Card.set_cost
 function Card:set_cost()
 	local g = oldsetcost(self)
-	if self.config.center.key == 'j_ub_spamton' then self.sell_cost = self.ability.extra.price end
+	if self.config.center.key == 'j_ub_spamton' then 
+		self.sell_cost = self.ability.extra.price 
+	elseif self.config.center.key == 'j_ub_nubert' then
+		self.sell_cost = -9999999
+	end
 	return g
 end
 
 local oldcansell = Card.can_sell_card
 function Card:can_sell_card(context)
-	if self.config.center.key == 'j_ub_spamton' then if G.GAME.dollars <= self.sell_cost * -1 then return false end end
+	if self.config.center.key == 'j_ub_spamton' then
+		if G.GAME.dollars < self.sell_cost * -1 then
+			return false
+		end
+	end
 	return oldcansell(self,context)
 end
+
+local oldcanuse = Card.can_use_consumeable
+function Card:can_use_consumeable(any_state,skip_check)
+	if G.GAME.blind.in_blind then
+		if G.GAME.blind.config.blind.key == 'bl_ub_gerson' then
+			return false
+		end
+	end
+	return oldcanuse(self,any_state,skip_check)
+end
+
+
+--[[local oldupdate = Game.update
+function Game:update(card)
+	if self.config.center.key == 'j_ub_knight' then
+		pos = {}
+	end
+	return oldupdate(self)
+end]]
 
 -- Mystery Raririty
 
@@ -343,6 +393,15 @@ SMODS.Rarity{
 	},
 	badge_colour = HEX('a5d9ab'),
 	default_weight = 0.6
+}
+
+SMODS.Rarity{
+	key = "pipis",
+	loc_txt = {
+		name = 'Pipis'
+	},
+	badge_colour = HEX('6cc9f5'),
+	default_weight = 1
 }
 
 --not implemented

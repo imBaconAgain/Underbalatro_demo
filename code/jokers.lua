@@ -170,8 +170,7 @@ SMODS.Joker{
 	end,
 	calculate = function(self,card,context)
 		if context.joker_main then
-			local chancedd = math.random(3)
-			if chancedd == 1 then
+			if pseudorandom('kindness') < G.GAME.probabilities.normal/3 then
 				return { mult = 25 }
 			end
 		end
@@ -502,7 +501,7 @@ SMODS.Joker{
 }
 
 -- OMEGA FLOWEY
-
+--[[
 SMODS.Joker{
 	key = "photoshop",
 	loc_txt = {
@@ -541,7 +540,7 @@ SMODS.Joker{
 		end
 		return UNDERBALATRO.get_joker_return(card.ability.extra.soul,context,card,false)
 	end	
-}
+}]]
 
 -- Amalgam
 
@@ -656,15 +655,13 @@ SMODS.Joker{
 	end,
 	calculate = function(self,card,context)
 		if context.setting_blind then
-			local chance = math.random(1,200)
-			if chance == 1 then
+			if pseudorandom('failed') < G.GAME.probabilities.normal/200 then
 				SMODS.add_card({key = 'j_ub_gaster'})
 				card:start_dissolve({ C.G.DARK_EDITION }, nil, 1.6)
 			end
 		end
 		if context.joker_main then
-			local chance = math.random(1,3)
-			if chance == 1 then
+			if pseudorandom('failed') < G.GAME.probabilities.normal/3 then
 				return {Xmult = 3}
 			end
 		end
@@ -993,8 +990,7 @@ SMODS.Joker{
 			elseif abil == 20 then
 				return {chips = 10, mult = 5}
 			elseif abil == 23 or abil == 24 then
-				local chance = math.random(1,5)
-				if chance == 1 then
+				if pseudorandom('failed') < G.GAME.probabilities.normal/5 then
 					if abil == 23 then
 						return {mult = -10}
 					else
@@ -1060,8 +1056,7 @@ SMODS.Joker{
             return {mult = 50}
         end
         if context.main_eval and context.end_of_round then
-            local chance = math.random(1,10)
-            if chance == 1 then
+            if pseudorandom('failed') < G.GAME.probabilities.normal/10 then
                 card:start_dissolve({ HEX("57ecab") }, nil, 1.6)
                 return {
                     message = 'Broke!',
@@ -1738,10 +1733,10 @@ SMODS.Joker{
             '{C:inactive}(Currently {C:chips}+#1#{C:inactive} Chips)'
 		}
 	},
-	atlas = 'ph2',
+	atlas = 'jatlas',
 	rarity = 1,
     cost = 6,
-	pos = {x = 0, y = 0},
+	pos = {x = 4, y = 0},
 	config = { extra = {
 		
    	},
@@ -1751,7 +1746,6 @@ SMODS.Joker{
 	end,
 	blueprint_compat = true,
 	loc_vars = function(self, info_queue, card)
-		info_queue[#info_queue+1] = {key='ph', set='Other'}
 		return {vars={15*(G.GAME.consumeable_usage_total and G.GAME.consumeable_usage_total.spectral or 0)}}
     end,
 	set_badges = function(self,card,badges)
@@ -2018,19 +2012,25 @@ SMODS.Joker{
 
 -- Chara
 
+SMODS.Atlas{
+	key = 'chara',
+	path = 'chara.png',
+	px = 71,
+	py = 95
+}
+
+
 SMODS.Joker{
 	key = "chara",
 	loc_txt = {
 		name = 'Chara',
 		text = {
-            'Sell this card to',
-            '{C:red,E:2}destroy{} Joker to',
+            'Sell this card to {C:red,E:2}destroy{} Joker to',
             'the right.',
-            'When doing so, create',
-            'a {C:dark_edition}Negative{} Joker'
+            'When doing so, create a {C:dark_edition}Negative{} Joker'
 		}
 	},
-	atlas = 'ph2',
+	atlas = 'chara',
 	rarity = 2,
     cost = 6,
 	pos = {x = 0, y = 0},
@@ -2043,7 +2043,6 @@ SMODS.Joker{
 	end,
 	blueprint_compat = true,
 	loc_vars = function(self, info_queue, card)
-        info_queue[#info_queue+1] = {key='ph', set='Other'}
         info_queue[#info_queue+1] = G.P_CENTERS['e_negative']
         return {vars = {card.ability.extra.mult}}
     end,
@@ -2077,17 +2076,19 @@ SMODS.Joker{
             'card when {C:attention}Blind{} is selected'
 		}
 	},
-	atlas = 'ph2',
+	atlas = 'aatlas',
 	cost = 7,
 	rarity = 3,
-	pos = {x = 0, y = 0},
+    soul_pos = {x=0,y=0},
+	pos = {x = 3, y = 0},
 	config = { extra = {
 		
    	},
+
     },
 	blueprint_compat = true,
 	loc_vars = function(self, info_queue, card)
-		info_queue[#info_queue+1] = {key='ph', set='Other'}
+
     end,
 	set_badges = function(self,card,badges)
 
@@ -2113,10 +2114,347 @@ SMODS.Joker{
 	end	
 }
 
+-- Dummy
+
+SMODS.Joker{
+	key = "dummy",
+	loc_txt = {
+		name = 'Dummy',
+		text = {
+			'It\'s a dummy, what do',
+            'you expect it to do?'
+		}
+	},
+	atlas = 'jatlas',
+	cost = 1,
+	rarity = 1,
+	pos = {x = 3, y = 0},
+	config = { extra = {
+		
+   	},
+    },
+	blueprint_compat = true,
+	loc_vars = function(self, info_queue, card)
+    end,
+	set_badges = function(self,card,badges)
+
+	end,
+	calculate = function(self,card,context)
+		if context.joker_main then
+            return {
+                message = 'Nothing!',
+                colour = G.C.attention
+            }
+        end
+	end	
+}
+
+-- nubert
+
+SMODS.Joker{
+	key = "nubert",
+	loc_txt = {
+		name = 'nubert',
+		text = {
+			'nubert',
+            '{s:0.5}nubert',
+            '{s:0.3,C:inactive}now seriously, i should stop with this'
+		}
+	},
+	atlas = 'jatlas',
+	cost = 99999999999999,
+	rarity = 4,
+    soul_pos = {x=1,y=0},
+	pos = {x = 0, y = 0},
+	config = { extra = {
+		destr = false
+   	},
+    },
+	blueprint_compat = true,
+    in_pool = function(self,args)
+        return true
+    end,
+	loc_vars = function(self, info_queue, card)
+    end,
+	set_badges = function(self,card,badges)
+
+	end,
+	calculate = function(self,card,context)
+		if context.joker_main then
+            card.ability.extra.destr = true
+            return {
+                Xmult = 10000000
+            }
+        end
+        if context.setting_blind and card.ability.extra.destr == true then
+            card:start_dissolve()
+            local chance = math.random(1,2)
+            if chance == 1 then
+                return {
+                    message = 'He was way too strong for you',
+                    colour = G.C.attention
+                }
+            elseif chance == 2 then
+                return {
+                    message = 'Nubert does not hang with noobs',
+                    colour = G.C.attention
+                }
+            end
+        end
+	end	
+}
+
+-- Seam
+
+SMODS.Joker{
+	key = "seam",
+	loc_txt = {
+		name = 'Seam',
+		text = {
+			'Sell to obtain a random',
+            '{C:black}ITEM'
+		}
+	},
+	atlas = 'ph2',
+	cost = 3,
+	rarity = 1,
+	pos = {x = 0, y = 0},
+	config = { extra = {
+        
+   	},
+    },
+	blueprint_compat = true,
+    in_pool = function(self,args)
+        return true
+    end,
+	loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue+1] = {key='ph', set='Other'}
+    end,
+	set_badges = function(self,card,badges)
+
+	end,
+	calculate = function(self,card,context)
+		if context.selling_self and #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
+            G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
+            G.E_MANAGER:add_event(Event({
+                func = (function()
+                    G.E_MANAGER:add_event(Event({
+                        func = function()
+                            SMODS.add_card {
+                                set = 'items',
+                                key_append = 'ub_seam' -- Optional, useful for manipulating the random seed and checking the source of the creation in `in_pool`.
+                            }
+                            G.GAME.consumeable_buffer = 0
+                            return true
+                        end
+                    }))
+                    SMODS.calculate_effect({ message = '+1 ITEM', colour = G.C.BLACK },
+                        context.blueprint_card or card)
+                    return true
+                end)
+            }))
+            return nil, true -- This is for Joker retrigger purposes
+        end
+	end	
+}
+
+-- Jevil
+
+SMODS.Joker{
+	key = "jevil",
+	loc_txt = {
+		name = 'Jevil',
+		text = {
+            {
+                'CHAOS, CHAOS!',
+                'Start a new {C:attention}CHAOS{} every round',
+                '{C:dark_edition}+3{} Joker slots'
+            },
+            {
+                'Current {C:attention}CHAOS:',
+                '#1#'
+            }
+		}
+	},
+	atlas = 'jatlas',
+	cost = 7,
+	rarity = 2,
+	pos = {x = 5, y = 0},
+	config = { extra = {
+        chaos = 'What! It\'s nothing but a useless bird!',
+        chaos_l = 7,
+        chaoses = {
+            '-1 discard', --1
+            '-1 hand',
+            '-$5',
+            'X2 blind requirement', --4
+            'X0.5 mult',
+            'X0.5 chips',
+            'What! It\'s nothing but a useless bird!', --7
+            '+500 chips',
+            '-1 hand size',
+            '+50 mult', --10
+            'Random mult',
+            'Random chips'
+        }
+   	},
+    },
+	blueprint_compat = true,
+    in_pool = function(self,args)
+        return true
+    end,
+	loc_vars = function(self, info_queue, card)
+        return {vars={card.ability.extra.chaos}}
+    end,
+	set_badges = function(self,card,badges)
+
+	end,
+    add_to_deck = function(self, card, from_debuff)
+        G.jokers.config.card_limit = G.jokers.config.card_limit + 3
+    end,
+    remove_from_deck = function(self, card, from_debuff)
+        G.jokers.config.card_limit = G.jokers.config.card_limit - 3
+    end,
+	calculate = function(self,card,context)
+		if context.end_of_round and context.main_eval then
+            if card.ability.extra.chaos_l == 1 then
+				G.E_MANAGER:add_event(Event({
+					func = function()
+						ease_discard(1,nil)
+						return true
+					end
+				}))
+            elseif card.ability.extra.chaos_l == 2 then
+				G.E_MANAGER:add_event(Event({
+					func = function()
+						ease_hands_played(1,nil)
+						return true
+					end
+				}))
+            elseif card.ability.extra.chaos_l == 9 then
+                G.E_MANAGER:add_event(Event({
+					func = function()
+						G.hand:change_size(1,nil)
+						return true
+					end
+				}))
+            end
+            card.ability.extra.chaos_l = math.random(1,#card.ability.extra.chaoses)
+            card.ability.extra.chaos = card.ability.extra.chaoses[card.ability.extra.chaos_l]
+            
+            if card.ability.extra.chaos_l == 3 then
+                ease_dollars(-5)
+            end
+        end
+        if context.setting_blind then
+            if card.ability.extra.chaos_l == 4 then
+                G.GAME.blind.chips = G.GAME.blind.chips * 2
+                G.GAME.blind.chip_text = number_format(G.GAME.blind.chips)
+            elseif card.ability.extra.chaos_l == 1 then
+                return {
+					func = function()
+						G.E_MANAGER:add_event(Event({
+							func = function()
+								ease_discard(-1)
+								return true
+							end
+						}))
+					end
+				}
+            elseif card.ability.extra.chaos_l == 2 then
+                return {
+					func = function()
+						G.E_MANAGER:add_event(Event({
+							func = function()
+								ease_hands_played(-1)
+								return true
+							end
+						}))
+					end
+				}
+            elseif card.ability.extra.chaos_l == 9 then
+                return {
+					func = function()
+						G.E_MANAGER:add_event(Event({
+							func = function()
+								G.hand:change_size(-1)
+								return true
+							end
+						}))
+					end
+				}
+            end
+        end
+        if context.joker_main then
+            if card.ability.extra.chaos_l == 5 then
+                return {xmult = 0.5}
+            elseif card.ability.extra.chaos_l == 6 then
+                return {xchips = 0.5}
+            elseif card.ability.extra.chaos_l == 8 then
+                return {chips = 500}
+            elseif card.ability.extra.chaos_l == 10 then
+                return {mult = 50}
+            elseif card.ability.extra.chaos_l == 11 then
+                return {mult = math.random(-5,100)}
+            elseif card.ability.extra.chaos_l == 12 then
+                return {chips = math.random(-50,1000)}
+            end
+        end
+	end	
+}
+
+-- pipis
+
+SMODS.Joker{
+	key = "pipis",
+	loc_txt = {
+		name = 'Pipis',
+		text = {
+			{
+				'{C:chips}-50{} Chips'
+			},
+			{
+				'Explodes after {C:attention}3{} rounds',
+                'loosing {C:gold}$1{} on explosion',
+				'{C:inactive}(Currently {C:attention}#1#{C:inactive}/3)'
+			}
+		}
+	},
+	atlas = 'jatlas',
+	rarity = 'ub_pipis',
+	pos = {x = 0, y = 1},
+	config = { extra = {
+		handss = 0
+   	},
+    },
+	in_pool = function(self,args)
+		return false
+	end,
+	blueprint_compat = false,
+	loc_vars = function(self, info_queue, card)
+		return {vars={card.ability.extra.handss}}
+    end,
+	set_badges = function(self,card,badges)
+
+	end,
+	calculate = function(self,card,context)
+		if context.end_of_round and context.main_eval then
+			card.ability.extra.handss = card.ability.extra.handss + 1
+			if card.ability.extra.handss == 3 then
+				card:start_dissolve({ HEX("584896") }, nil, 1.6)
+                ease_dollars(-1)
+			end
+		end
+		if context.joker_main then
+			return {chips = -50}
+		end
+	end	
+}
+
 --[[if context.ub_destroyedcard == "j_ub_monster" then
 			card.ability.extra.mult = card.ability.extra.mult + 6
 				return { 
-					message = localize('k_upgrade_ex'),
+					message = localize('k_upgrade_ex'), 
 					colour = G.C.RED
 				 }
 		end
